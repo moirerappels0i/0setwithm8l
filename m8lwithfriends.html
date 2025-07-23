@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M8l Set Game - Multiplayer</title>
+  <link rel="stylesheet" href="m8lset.css">
+</head>
+<body class="game-body multiplayer-body">
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <!-- Original shapes from your initial code -->
+      <path id="squiggle" d="m67.892902,12.746785c43.231313,-6.717223 107.352741,6.609823 121.028973,58.746408c13.676233,52.136585 -44.848649,161.467192 -45.07116,204.650732c4.566246,56.959708 83.805481,87.929227 22.329944,105.806022c-61.475536,17.876795 -126.122496,-1.855045 -143.73294,-41.933823c-17.610444,-40.07878 49.274638,-120.109409 46.14822,-188.091997c-3.126418,-67.982588 -21.873669,-70.257464 -49.613153,-80.177084c-27.739485,-9.919618 5.678801,-52.283035 48.910115,-59.000258z"></path>
+      <path id="oval" d="m11.49999,95.866646c0,-44.557076 37.442923,-81.999998 82.000002,-81.999998l12.000015,0c44.557076,0 81.999992,37.442923 81.999992,81.999998l0,206.133354c0,44.557098 -37.442917,82 -81.999992,82l-12.000015,0c-44.557079,0 -82.000002,-37.442902 -82.000002,-82l0,-206.133354z"></path>
+      <path id="diamond" d="m98.544521,10.311863l-87.830189,189.330815l88.201143,189.644391l88.942329,-190.362741l-89.313283,-188.612465z"></path>
+
+      <!-- Additional shapes (ensure all paths are complete and correctly defined) -->
+      <rect id="square" x="35" y="14" width="130" height="370"></rect>      
+      <path id="triangle" d="M100,14 L195,384 L5,384 Z"></path>
+      <path id="hearts" d="M10,84 A45,45 0,0,1 100,84 A45,45 0,0,1 190,84 Q190,194 100,384 Q10,194 10,84 Z"></path>
+      
+
+      <pattern id="pattern-stripe" width="2" height="20" patternUnits="userSpaceOnUse">
+        <rect width="2" height="8" fill="#fff"></rect>
+      </pattern>
+      <mask id="mask-stripe">
+        <rect x="0" y="0" width="200" height="400" fill="url(#pattern-stripe)"></rect>
+      </mask>
+    </defs>
+  </svg>
+
+  <div class="header">
+    <div class="header-left">
+      <button id="homeBtn" class="btn">← Home</button>
+      <h1>Set - Multiplayer</h1>
+    </div>
+    <div class="header-center">
+      <p id="setStatus">Status: Checking...</p>
+      <p>Game ID: <span id="gameId"></span></p>
+      <p>Time: <span id="timer">0:00</span></p>
+    </div>
+    <div class="header-right">
+      <button id="themeBtn" class="btn">Change Theme</button>
+    </div>
+  </div>
+
+  <div class="game-container">
+    <div class="game-sidebar">
+      <div class="players-scores">
+        <h3>Players & Scores</h3>
+        <div id="playersScores" class="players-scores-list">
+          <!-- Players and scores will be dynamically added here -->
+        </div>
+      </div>
+      
+      <div class="game-chat">
+        <h3>Game Chat</h3>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="cards-remaining" id="cardsRemaining"></div>
+        <div class="chat-input-container">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." maxlength="200">
+          <button id="sendBtn" class="send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="board-container">
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div id="gameOverModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h2>Game Over!</h2>
+      <div id="finalScores" class="final-scores">
+        <!-- Final scores will be displayed here -->
+      </div>
+      <div class="modal-buttons">
+        <button id="playAgainBtn" class="homepage-btn primary">Play Again</button>
+        <button id="backHomeBtn" class="homepage-btn secondary">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="m8lset.js"></script>
+  <script>
+    // Initialize multiplayer game when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof PageManager !== 'undefined') {
+        PageManager.initMultiplayerGame();
+      }
+    });
+  </script>
+</body>
+</html>

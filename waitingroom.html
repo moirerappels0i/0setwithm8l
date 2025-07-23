@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M8l Set Game - Waiting Room</title>
+  <link rel="stylesheet" href="m8lset.css">
+</head>
+<body class="waitingroom-body">
+  <div class="waitingroom-container">
+    <div class="waitingroom-header">
+      <button id="homeBtn" class="btn">← Home</button>
+      <h1>Game Waiting Room</h1>
+    </div>
+    
+    <div class="waitingroom-content">
+      <div class="invite-section">
+        <h3>Invite Friends</h3>
+        <p>Share this link with your friends to join the game:</p>
+        <div class="invite-link-container">
+          <input type="text" id="inviteLink" class="invite-link-input" readonly>
+          <button id="copyLinkBtn" class="btn">Copy Link</button>
+        </div>
+        <div id="copyStatus" class="copy-status"></div>
+      </div>
+      
+      <div class="players-section">
+        <h3>Players Joined (<span id="playerCount">1</span>)</h3>
+        <div id="playersList" class="players-list">
+          <!-- Players will be dynamically added here -->
+        </div>
+      </div>
+      
+      <div class="game-controls">
+        <div id="waitingMessage" class="waiting-message">
+          <p>Waiting for more players to join...</p>
+          <p class="min-players-note">Minimum 2 players required to start</p>
+        </div>
+        <button id="startGameBtn" class="homepage-btn primary" style="display: none;">Start Multiplayer Game</button>
+      </div>
+      
+      <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Starting game...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="m8lset.js"></script>
+  <script>
+    // Initialize waiting room when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof PageManager !== 'undefined') {
+        PageManager.initWaitingRoom();
+      }
+    });
+  </script>
+</body>
+</html>

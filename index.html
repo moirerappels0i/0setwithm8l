@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M8l Set Card Game</title>
+  <link rel="stylesheet" href="m8lset.css">
+</head>
+<body class="homepage-body">
+  <div class="homepage-container">
+    <div class="homepage-header">
+      <h1 class="homepage-title">M8l Set Card Game</h1>
+      <p class="homepage-subtitle">Challenge your pattern recognition skills</p>
+    </div>
+    
+    <div class="homepage-content">
+      <div class="game-modes">
+        <div class="game-mode-card">
+          <h3>Solo Challenge</h3>
+          <p>Practice your skills and beat your best time</p>
+          <button id="playSoloBtn" class="homepage-btn primary">Play Solo Game</button>
+        </div>
+        
+        <div class="game-mode-card">
+          <h3>Play with Friends</h3>
+          <p>Compete with friends in real-time multiplayer</p>
+          <button id="playMultiplayerBtn" class="homepage-btn secondary">Play with Friends</button>
+        </div>
+      </div>
+      
+      <div class="game-info">
+        <h4>How to Play Set</h4>
+        <p>Find three cards that form a valid set. For each property (shape, color, fill, number), the three cards must be either all the same or all different.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="m8lset.js"></script>
+  <script>
+    // Initialize homepage when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof PageManager !== 'undefined') {
+        PageManager.initHomepage();
+      }
+    });
+  </script>
+</body>
+</html>
