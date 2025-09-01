@@ -1293,15 +1293,15 @@ class FirebaseManager {
  async initialize() {
    try {
      // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
-     const firebaseConfig = {
-       apiKey: "your-api-key-here",
-       authDomain: "your-project.firebaseapp.com", 
-       databaseURL: "https://your-project-default-rtdb.firebaseio.com/",
-       projectId: "your-project-id",
-       storageBucket: "your-project.appspot.com",
-       messagingSenderId: "123456789",
-       appId: "your-app-id"
-     };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCEDE92kfgljdvWnAzzaiWQaB73YaJrBSc",
+      authDomain: "m8lsetwithfriends.firebaseapp.com",
+      databaseURL: "https://m8lsetwithfriends-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "m8lsetwithfriends",
+      storageBucket: "m8lsetwithfriends.firebasestorage.app",
+      messagingSenderId: "315344393601",
+      appId: "1:315344393601:web:f20c5d3ee6b9f71ec54480"
+    };
 
      // Import Firebase modules from CDN
      if (!window.firebase) {
