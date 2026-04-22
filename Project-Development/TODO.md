@@ -1,9 +1,9 @@
 ## Phase 1: CSS theming foundation
-- [ ] Audit existing CSS colors and ensure all use var(--*) tokens
-- [ ] Add dark mode CSS variable overrides under [data-theme="dark"]
+- [x] Audit existing CSS colors and ensure all use var(--*) tokens
+- [x] Add dark mode CSS variable overrides under [data-theme="dark"]
 
 ## Phase 2: Hamburger menu component
-- [ ] Add hamburger button + menu panel CSS (fixed top-right, z-index, open/close animation)
+- [~] Add hamburger button + menu panel CSS (fixed top-right, z-index, open/close animation)
 - [ ] Add toggle switch CSS (pill-style, animated)
 
 ## Phase 3: JavaScript logic
