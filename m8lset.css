@@ -607,6 +607,7 @@ body,
 ============================================== */
 .btn {
   background-color: var(--color-whitefaded);
+  color: var(--color-text);
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 4px;
@@ -620,6 +621,7 @@ body,
 
 .btn:hover {
   background-color: var(--color-blue3);
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
@@ -942,6 +944,7 @@ svg {
 
 .btn {
   background-color: var(--color-whitefaded);
+  color: var(--color-text);
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 4px;
@@ -955,6 +958,7 @@ svg {
 
 .btn:hover {
   background-color: var(--color-blue3);
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
@@ -1291,4 +1295,194 @@ svg {
 
 .theme-option {
   margin-bottom: 1rem;
+}
+
+/* ==============================================
+   HAMBURGER THEME MENU
+============================================== */
+.theme-menu-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px var(--color-shadow-strong);
+  cursor: pointer;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-menu-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--color-shadow-strong);
+}
+
+.theme-menu-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.theme-menu-btn-bars {
+  position: relative;
+  width: 22px;
+  height: 16px;
+  display: inline-block;
+}
+
+.theme-menu-btn-bars::before,
+.theme-menu-btn-bars::after,
+.theme-menu-btn-bars span {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 2px;
+  background-color: var(--color-text);
+  transition: transform 0.25s ease, opacity 0.2s ease, top 0.25s ease, background-color 0.25s ease;
+}
+
+.theme-menu-btn-bars::before { top: 0; }
+.theme-menu-btn-bars span    { top: 7px; }
+.theme-menu-btn-bars::after  { top: 14px; }
+
+.theme-menu-btn[aria-expanded="true"] .theme-menu-btn-bars::before {
+  top: 7px;
+  transform: rotate(45deg);
+}
+
+.theme-menu-btn[aria-expanded="true"] .theme-menu-btn-bars span {
+  opacity: 0;
+}
+
+.theme-menu-btn[aria-expanded="true"] .theme-menu-btn-bars::after {
+  top: 7px;
+  transform: rotate(-45deg);
+}
+
+.theme-menu-panel {
+  position: fixed;
+  top: 70px;
+  right: 16px;
+  min-width: 240px;
+  max-width: calc(100vw - 32px);
+  padding: 18px 20px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px var(--color-shadow-strong);
+  z-index: 1099;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.25s ease, color 0.25s ease;
+}
+
+.theme-menu-panel[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.theme-menu-panel-title {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.theme-menu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.theme-menu-row-label {
+  font-size: 1rem;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Pill-style toggle switch */
+.theme-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.theme-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-toggle-switch-track {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-border-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.theme-toggle-switch-track::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.theme-toggle-switch input:checked + .theme-toggle-switch-track {
+  background-color: var(--color-primary);
+}
+
+.theme-toggle-switch input:checked + .theme-toggle-switch-track::before {
+  transform: translateX(24px);
+}
+
+.theme-toggle-switch input:focus-visible + .theme-toggle-switch-track {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.theme-toggle-icon {
+  font-size: 1rem;
+  line-height: 1;
+  user-select: none;
+}
+
+@media (max-width: 480px) {
+  .theme-menu-btn {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+  }
+  .theme-menu-panel {
+    top: 60px;
+    right: 10px;
+    left: 10px;
+    min-width: 0;
+  }
 }

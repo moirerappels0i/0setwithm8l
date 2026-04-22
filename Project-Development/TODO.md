@@ -3,14 +3,14 @@
 - [x] Add dark mode CSS variable overrides under [data-theme="dark"]
 
 ## Phase 2: Hamburger menu component
-- [~] Add hamburger button + menu panel CSS (fixed top-right, z-index, open/close animation)
-- [ ] Add toggle switch CSS (pill-style, animated)
+- [x] Add hamburger button + menu panel CSS (fixed top-right, z-index, open/close animation)
+- [x] Add toggle switch CSS (pill-style, animated)
 
 ## Phase 3: JavaScript logic
-- [ ] Add ThemeManager to m8lset.js (localStorage read/write, menu injection, toggle wiring)
+- [x] Add ThemeManager to m8lset.js (localStorage read/write, menu injection, toggle wiring)
 
 ## Phase 4: Wire up all pages
-- [ ] Add anti-flash inline script to index.html head
-- [ ] Add anti-flash inline script + menu script to playm8lset.html
-- [ ] Add anti-flash inline script + menu script to m8lwithfriends.html
-- [ ] Add anti-flash inline script + menu script to waitingroom.html
+- [x] Add anti-flash inline script to index.html head
+- [x] Add anti-flash inline script + menu script to playm8lset.html
+- [x] Add anti-flash inline script + menu script to m8lwithfriends.html
+- [x] Add anti-flash inline script + menu script to waitingroom.html

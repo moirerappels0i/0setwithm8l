@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>M8l Set Card Game - Solo</title>
   <link rel="stylesheet" href="m8lset.css">
+  <script>
+    // Anti-flash: apply stored theme before first paint
+    (function () {
+      try {
+        if (localStorage.getItem('m8lset-theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body class="game-body">
   <svg width="0" height="0" style="position:absolute">

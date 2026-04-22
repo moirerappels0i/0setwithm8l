@@ -2449,3 +2449,172 @@ async handleValidSet() {
 
 // Make sure PageManager is available globally
 window.PageManager = PageManager;
+
+/********************************************************
+ *              THEME MANAGER
+ ********************************************************/
+const ThemeManager = {
+  STORAGE_KEY: 'm8lset-theme',
+
+  getStoredTheme() {
+    try {
+      return localStorage.getItem(this.STORAGE_KEY);
+    } catch (e) {
+      return null;
+    }
+  },
+
+  saveTheme(theme) {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, theme);
+    } catch (e) {
+      /* ignore */
+    }
+  },
+
+  applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.removeAttribute('data-theme');
+    }
+  },
+
+  currentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  },
+
+  toggle() {
+    const next = this.currentTheme() === 'dark' ? 'light' : 'dark';
+    this.applyTheme(next);
+    this.saveTheme(next);
+    this.syncMenuState();
+  },
+
+  init() {
+    const stored = this.getStoredTheme();
+    this.applyTheme(stored === 'dark' ? 'dark' : 'light');
+    this.injectMenu();
+    this.syncMenuState();
+  },
+
+  injectMenu() {
+    if (document.getElementById('theme-menu-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'theme-menu-btn';
+    btn.className = 'theme-menu-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Open menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', 'theme-menu-panel');
+
+    const bars = document.createElement('span');
+    bars.className = 'theme-menu-btn-bars';
+    bars.setAttribute('aria-hidden', 'true');
+    const barsMiddle = document.createElement('span');
+    bars.appendChild(barsMiddle);
+    btn.appendChild(bars);
+
+    const panel = document.createElement('div');
+    panel.id = 'theme-menu-panel';
+    panel.className = 'theme-menu-panel';
+    panel.setAttribute('role', 'menu');
+    panel.setAttribute('aria-labelledby', 'theme-menu-btn');
+    panel.setAttribute('data-open', 'false');
+
+    const title = document.createElement('p');
+    title.className = 'theme-menu-panel-title';
+    title.textContent = 'Settings';
+    panel.appendChild(title);
+
+    const row = document.createElement('div');
+    row.className = 'theme-menu-row';
+
+    const label = document.createElement('label');
+    label.className = 'theme-menu-row-label';
+    label.setAttribute('for', 'theme-toggle-input');
+
+    const iconSun = document.createElement('span');
+    iconSun.className = 'theme-toggle-icon';
+    iconSun.setAttribute('aria-hidden', 'true');
+    iconSun.textContent = '☀';
+
+    const labelText = document.createElement('span');
+    labelText.textContent = 'Dark mode';
+
+    label.appendChild(iconSun);
+    label.appendChild(labelText);
+
+    const switchWrap = document.createElement('span');
+    switchWrap.className = 'theme-toggle-switch';
+
+    const input = document.createElement('input');
+    input.id = 'theme-toggle-input';
+    input.type = 'checkbox';
+    input.setAttribute('role', 'switch');
+    input.setAttribute('aria-label', 'Toggle dark mode');
+
+    const track = document.createElement('span');
+    track.className = 'theme-toggle-switch-track';
+    track.setAttribute('aria-hidden', 'true');
+
+    switchWrap.appendChild(input);
+    switchWrap.appendChild(track);
+
+    row.appendChild(label);
+    row.appendChild(switchWrap);
+    panel.appendChild(row);
+
+    document.body.appendChild(btn);
+    document.body.appendChild(panel);
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      this.setMenuOpen(!open);
+    });
+
+    input.addEventListener('change', () => {
+      this.toggle();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (btn.getAttribute('aria-expanded') !== 'true') return;
+      if (e.target === btn || btn.contains(e.target)) return;
+      if (panel.contains(e.target)) return;
+      this.setMenuOpen(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+        this.setMenuOpen(false);
+        btn.focus();
+      }
+    });
+  },
+
+  setMenuOpen(open) {
+    const btn = document.getElementById('theme-menu-btn');
+    const panel = document.getElementById('theme-menu-panel');
+    if (!btn || !panel) return;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    panel.setAttribute('data-open', open ? 'true' : 'false');
+  },
+
+  syncMenuState() {
+    const input = document.getElementById('theme-toggle-input');
+    if (input) {
+      input.checked = this.currentTheme() === 'dark';
+    }
+  }
+};
+
+window.ThemeManager = ThemeManager;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => ThemeManager.init());
+} else {
+  ThemeManager.init();
+}
