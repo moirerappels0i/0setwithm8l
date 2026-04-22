@@ -1,23 +1,23 @@
 ---
 name: project-executor
-description: Use this skill whenever the user invokes /project-executor or asks to create a plan, start, continue, resume, check status of, list, or complete a long-running implementation project. Also triggers when the current branch is a claude/implementation/* branch or the repo contains a Project-Development/ folder. This skill runs a git-native, branch-scoped workflow: state lives in Project-Development/ on a feature branch so any session — terminal or web — can resume by pulling the branch. On completion, Project-Development/ is removed in a final commit so squash-merging the PR leaves main clean.
+description: Use this skill whenever the user invokes /project-executor, or asks to create a plan, start, continue, resume, check status of, list, or complete a long-running implementation project. Also triggers when the current branch is a claude/implementation/* branch or the repo contains a Project-Development/ folder. Runs a git-native, branch-scoped workflow where state lives in Project-Development/ on a feature branch so any session — terminal or web — can resume by pulling the branch. On completion, Project-Development/ is removed in a final commit so squash-merging the PR leaves the default branch clean. Subcommands: create, start, continue, status, approved, list, help.
 ---
 
 # Project Executor
 
-You execute long-running implementation projects using a git-native, branch-scoped state system. All project state lives in `Project-Development/` on a dedicated feature branch. Any session — terminal or web — resumes by pulling the branch.
+You execute long-running implementation projects using a git-native, branch-scoped state system. All project state lives in `Project-Development/` on a dedicated feature branch inside the user's repo. Any session — terminal or web — resumes by pulling the branch.
 
 ## Core invariants
 
 - State lives in `<repo_root>/Project-Development/` on branch `claude/implementation/<feature>`.
-- `main` (or the repo's default branch) NEVER contains `Project-Development/`. A final commit removes it before the PR is opened.
+- The repo's default branch NEVER contains `Project-Development/`. A final commit removes it before the PR is opened.
 - Git is the sync layer: commit and push state changes so other sessions see them.
 - Only markdown state goes in `Project-Development/`. Code lives in its normal repo locations.
 - Planning (`create`) is strictly separated from execution (`start`).
 
-## Subcommand dispatch
+## Invocation and subcommand dispatch
 
-You are always invoked with a subcommand (parsed from `$ARGUMENTS` by the slash command). Route as follows:
+You are invoked as `/project-executor <subcommand> [args]`. Parse the first word of the arguments as the subcommand.
 
 | Subcommand | Mode |
 |---|---|
@@ -29,13 +29,16 @@ You are always invoked with a subcommand (parsed from `$ARGUMENTS` by the slash 
 | `list` | Mode 6 — list projects |
 | `help` | print subcommand list, stop |
 
-If invoked without a subcommand: if `Project-Development/` exists on the current branch → Mode 2; otherwise print help.
+**Fallback rules when no subcommand is given:**
+- If arguments look like a plan (multi-line or long prose), treat as `start`.
+- If arguments are empty and `Project-Development/` exists on the current branch, treat as `continue`.
+- If arguments are empty and no project exists, show `help`.
 
 ## The four state files
 
 All inside `Project-Development/`:
 
-**PLAN.md** — full plan. Written in Mode 0 (proposal) or Mode 1 (if user skips `create`). Changes only on explicit user scope change.
+**PLAN.md** — the full plan. Written in Mode 0 (proposal confirmed) or Mode 1 (if user skips `create`). Only changes on explicit user scope change.
 
 **TODO.md** — phased checklist:
 ```
@@ -56,7 +59,7 @@ Tasks small enough to be 1–3 file edits each.
 - Next: <next task>
 ```
 
-**CONTEXT.md** — written once:
+**CONTEXT.md** — written once at project creation:
 ```
 # <feature>
 
@@ -70,18 +73,19 @@ Tasks small enough to be 1–3 file edits each.
 
 ## Mode 0: create (planning only)
 
-Purpose: turn a rough user goal into a reviewable PLAN.md proposal. No branch, no execution, no state folder yet.
+Purpose: turn a rough user goal into a reviewable plan proposal. **No branch, no execution, no state folder yet.**
 
-1. Read the goal from the payload (e.g. `new feature login page, create a modern login page`).
-2. Briefly scan the repo to understand the stack: look at `package.json`, `requirements.txt`, `pyproject.toml`, `Cargo.toml`, `go.mod`, the top-level folder structure, and the README. Don't go deep — just enough to ask informed questions.
-3. Ask the user a focused set of clarifying questions. Keep it to 3–6 questions covering the things that meaningfully change the plan:
+1. Read the goal from the payload (e.g. `new feature login page, modern design`).
+2. Briefly scan the repo to understand the stack: look at `package.json`, `requirements.txt`, `pyproject.toml`, `Cargo.toml`, `go.mod`, top-level folder structure, and the README. Don't go deep — just enough to ask informed questions.
+3. Ask the user a focused set of clarifying questions. Keep it to 3–6 questions covering things that meaningfully change the plan:
    - Scope boundaries (what's in, what's out)
    - User-facing behavior / UX expectations
    - Tech choices where multiple reasonable options exist (libraries, patterns)
    - Integration points with existing code
    - Testing expectations
    - Any non-negotiable constraints (design system, accessibility, auth provider, etc.)
-   If the goal is already very specific, ask fewer questions. If it's very vague, ask more — but never more than 6 at once. Prefer the `ask_user_input_v0` tool when available; otherwise number the questions clearly.
+
+   If the goal is already very specific, ask fewer questions. If it's very vague, ask more — but never more than 6 at once. Number them clearly.
 4. After receiving answers, write the **plan proposal** directly in the chat (not to a file yet). Structure:
    ```
    # Proposed plan: <feature>
@@ -110,35 +114,39 @@ Purpose: turn a rough user goal into a reviewable PLAN.md proposal. No branch, n
 6. **Do not create any files. Do not create a branch. Do not commit anything.**
 7. If the user replies with edits, revise the proposal in-chat and offer it again. Iterate until they approve.
 
-When the user later runs `/project-executor start` (with no payload), use the most recent approved proposal from this session as the plan for Mode 1. If the session was lost, ask the user to paste the plan or re-run `create`.
+When the user later runs `/project-executor start` with no payload, use the most recent approved proposal from this session as the plan for Mode 1. If the session was lost, ask the user to paste the plan or re-run `create`.
 
 ## Mode 1: start
 
-1. `git status` — must be clean. If dirty, stop and tell user to commit or stash.
-2. Detect the default branch: `git symbolic-ref refs/remotes/origin/HEAD` or `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`. Fall back to `main`.
+1. Run `git status`. The tree must be clean. If dirty, stop and tell the user to commit or stash.
+2. Detect the default branch:
+   ```
+   git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'
+   ```
+   Fall back to `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, then to `main`.
 3. Determine the plan source:
    - If a proposal from Mode 0 exists in this session → use it.
-   - Else if `$ARGUMENTS` after `start` contains a plan → use that.
+   - Else if arguments after `start` contain a plan → use that.
    - Else ask the user to provide one or run `create` first.
-4. Derive a kebab-case feature name from the plan (short, descriptive: `user-auth`, `invoice-pdf`, `login-page`). If ambiguous, ask.
+4. Derive a kebab-case feature name from the plan — short and descriptive (`user-auth`, `invoice-pdf`, `login-page`). If ambiguous, ask.
 5. Auto-create the branch (no confirmation — user has opted in):
    ```
    git checkout -b claude/implementation/<feature>
    ```
-6. Create `Project-Development/` at repo root with all four files. Write the agreed plan into PLAN.md. Decompose into phased TODO.md.
+6. Create `Project-Development/` at the repo root with all four files. Write the agreed plan into PLAN.md. Decompose into phased TODO.md.
 7. Initial commit and push:
    ```
    git add Project-Development/
    git commit -m "chore(project-exec): initialize <feature> plan"
    git push -u origin claude/implementation/<feature>
    ```
-8. One short status line (branch name, phases, task count). Then enter the execution loop.
+8. One short status line (branch name, phase count, task count). Then enter the execution loop.
 
 ## Mode 2: continue
 
 1. If a feature name was given and the current branch differs, `git checkout claude/implementation/<feature>`.
 2. If on a `claude/implementation/*` branch, `git pull` to sync with other sessions.
-3. If no `Project-Development/` exists, list available `claude/implementation/*` branches and ask which to resume.
+3. If no `Project-Development/` exists on the current branch, list available `claude/implementation/*` branches and ask which to resume.
 4. Read all four state files.
 5. One line: "Resuming: `<next task>`." Enter the execution loop.
 
@@ -146,9 +154,9 @@ When the user later runs `/project-executor start` (with no payload), use the mo
 
 For each next `[ ]` task in TODO.md:
 
-1. Mark `[~]` in TODO.md.
+1. Mark the task `[~]` in TODO.md.
 2. Do the code work in the repo.
-3. Mark `[x]` in TODO.md.
+3. Mark the task `[x]` in TODO.md.
 4. Append an entry to PROGRESS.md.
 5. Continue to the next `[ ]`. Do NOT stop between tasks.
 
@@ -177,7 +185,7 @@ Only runs after the user explicitly approves (subcommand `approved`, `ship`, or 
    git commit -m "chore(project-exec): remove state folder before merge"
    git push
    ```
-3. Generate a PR body from PLAN.md summary + condensed PROGRESS.md highlights. Keep it under ~40 lines.
+3. Generate a PR body from the PLAN.md summary plus condensed PROGRESS.md highlights. Keep it under ~40 lines.
 4. Open the PR:
    ```
    gh pr create \
@@ -189,7 +197,7 @@ Only runs after the user explicitly approves (subcommand `approved`, `ship`, or 
 5. Report the PR URL.
 6. Remind the user: "Use **squash merge** on GitHub (or `gh pr merge --squash`). The default branch will not contain Project-Development/."
 
-If `gh` is missing or unauthenticated, stop at step 4 and give the user the manual `gh auth login` instructions or a direct URL to open the PR in the browser.
+If `gh` is missing or unauthenticated, stop at step 4 and give the user the manual `gh auth login` instructions or the direct URL to open the PR in the browser.
 
 ## Mode 5: status
 
